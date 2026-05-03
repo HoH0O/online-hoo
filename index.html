@@ -24,7 +24,7 @@
   }
 
   body {
-    background: linear-gradient(180deg, #1a0938 0%, #3d1f6e 40%, #6d4aa8 80%, #b07cc6 100%);
+    background: radial-gradient(ellipse at top, #131a2e 0%, #0a0e1f 60%, #060812 100%);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -64,35 +64,14 @@
     100% { transform: translateY(110vh) rotate(720deg); }
   }
 
-  /* ===== 헤더 ===== */
-  .header {
-    position: absolute;
-    top: 24px;
-    z-index: 20;
-    text-align: center;
-    color: #fff;
-    padding: 0 16px;
-  }
-  .header h1 {
-    font-size: clamp(18px, 2.6vw, 24px);
-    font-weight: 600;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.35);
-  }
-  .header p {
-    margin-top: 6px;
-    font-size: 13px;
-    color: #f5e4ff;
-    opacity: 0.9;
-  }
-
   /* ===== 모달 ===== */
   .modal-overlay {
     position: fixed;
     inset: 0;
     z-index: 200;
-    background: rgba(20, 8, 40, 0.78);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(6, 8, 18, 0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -195,154 +174,170 @@
   .badge.host { background: linear-gradient(90deg, #ffd24a, #ff8aae); color: #2b1055; }
   .badge.guest { background: rgba(122,252,255,0.25); color: #d8fbff; }
 
-  /* ===== 룸 패널 ===== */
-  .room-panel {
+  /* ===== 상단 알약 (스크린샷 디자인) ===== */
+  .top-pill {
     position: fixed;
-    top: 16px;
-    right: 16px;
+    top: 22px;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 150;
-    width: min(280px, calc(100vw - 32px));
-    background: rgba(20, 10, 40, 0.55);
-    border: 1px solid rgba(255,255,255,0.18);
-    border-radius: 16px;
-    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 8px 7px 16px;
+    background: rgba(28, 36, 56, 0.85);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 999px;
     color: #fff;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    font-size: 13px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    font-size: 14px;
+    max-width: calc(100vw - 32px);
     transition: opacity 0.3s;
   }
-  .room-panel.hidden { display: none; }
-  .room-panel h3 {
-    font-size: 11px;
-    font-weight: 600;
-    color: #f0d4ff;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-  }
-  .room-name-display {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 12px;
-    word-break: break-word;
-  }
+  .top-pill.hidden { display: none; }
 
-  .share-row {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 12px;
-  }
-  .share-row input {
-    flex: 1;
-    min-width: 0;
-    padding: 7px 10px;
-    background: rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 8px;
-    color: #fff;
-    font-size: 11px;
-    font-family: monospace;
-  }
-  .copy-btn {
-    padding: 7px 12px;
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.25);
-    color: #fff;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 12px;
-    font-family: inherit;
-    white-space: nowrap;
-    transition: background 0.2s;
-  }
-  .copy-btn:hover { background: rgba(255,255,255,0.25); }
-
-  .members-section h3 { margin-bottom: 8px; }
-  .members-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-height: 180px;
-    overflow-y: auto;
-  }
-  .members-list::-webkit-scrollbar { width: 4px; }
-  .members-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
-
-  .member {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 8px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 10px;
-    transition: background 0.25s;
-    font-size: 13px;
-  }
-  .member.blown { background: rgba(120, 230, 140, 0.15); }
-  .member-icon {
-    width: 22px;
-    height: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .status-dot {
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.12);
-    font-size: 13px;
+    background: #4ade80;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.7);
+    animation: pulseDot 2s infinite ease-in-out;
     flex-shrink: 0;
   }
-  .member.blown .member-icon {
-    background: linear-gradient(135deg, #6ddc8e, #41b96a);
+  @keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.6; transform: scale(0.85); }
   }
-  .member-name {
-    flex: 1;
+
+  .pill-text {
+    font-weight: 500;
+    color: #f3f4f6;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 220px;
+    letter-spacing: 0.2px;
   }
-  .member.me .member-name::after {
-    content: ' (나)';
-    color: #ffd24a;
-    font-size: 11px;
+  .pill-sep {
+    color: rgba(255,255,255,0.35);
+    margin: 0 1px;
   }
-  .member-status {
-    font-size: 11px;
-    color: rgba(255,255,255,0.7);
+
+  .share-btn {
+    padding: 7px 18px;
+    background: linear-gradient(135deg, #fde047, #facc15);
+    border: none;
+    border-radius: 999px;
+    color: #1a1a1a;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.15s, box-shadow 0.2s;
     flex-shrink: 0;
   }
-  .member.blown .member-status { color: #b8f3c7; }
-
-  .room-stats {
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid rgba(255,255,255,0.12);
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: #d8c8f0;
+  .share-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 14px rgba(250, 204, 21, 0.45);
   }
+  .share-btn.guest-hide { display: none; }
 
-  .host-controls {
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid rgba(255,255,255,0.12);
-  }
-  .host-controls.hidden { display: none; }
-  .reset-btn {
-    width: 100%;
-    padding: 8px;
-    background: rgba(255, 200, 100, 0.15);
-    border: 1px solid rgba(255, 200, 100, 0.4);
-    color: #ffe7b3;
-    border-radius: 10px;
-    cursor: pointer;
+  /* 룸 코드 (알약 아래 작은 글자) */
+  .room-code {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 150;
+    color: #6b7280;
+    font-family: 'SF Mono', Menlo, Consolas, monospace;
     font-size: 12px;
-    font-family: inherit;
-    transition: background 0.2s;
+    letter-spacing: 4px;
+    font-weight: 500;
+    user-select: text;
+    cursor: pointer;
+    transition: color 0.2s;
+    text-align: center;
   }
-  .reset-btn:hover { background: rgba(255, 200, 100, 0.3); }
+  .room-code:hover { color: #9ca3af; }
+  .room-code.hidden { display: none; }
+
+  /* 멤버 칩 행 */
+  .members-row {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 150;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: calc(100vw - 32px);
+    padding: 0 8px;
+  }
+  .members-row.hidden { display: none; }
+
+  .member-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 999px;
+    background: rgba(15, 20, 35, 0.7);
+    border: 1.5px solid rgba(120, 130, 160, 0.35);
+    color: #d1d5db;
+    font-size: 13px;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .member-chip.host {
+    border-color: rgba(253, 224, 71, 0.55);
+    color: #fcd34d;
+    background: rgba(40, 30, 10, 0.5);
+  }
+  .member-chip.blown {
+    border-color: rgba(74, 222, 128, 0.6);
+    color: #6ee7b7;
+    background: rgba(10, 40, 25, 0.55);
+  }
+  .member-chip .me-tag {
+    color: rgba(255,255,255,0.4);
+    font-size: 12px;
+    font-weight: 500;
+    margin-left: 1px;
+  }
+
+  /* 호스트 전용 리셋 (우하단 둥근 버튼) */
+  .reset-fab {
+    position: fixed;
+    bottom: 84px;
+    right: 20px;
+    z-index: 150;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(28, 36, 56, 0.8);
+    color: #fcd34d;
+    font-size: 18px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    transition: transform 0.15s, background 0.2s;
+  }
+  .reset-fab:hover { transform: rotate(-30deg); background: rgba(40, 50, 80, 0.9); }
+  .reset-fab.hidden { display: none; }
 
   /* ===== 케이크 ===== */
   .stage {
@@ -610,21 +605,19 @@
   .toast.show { opacity: 1; }
 
   @media (max-width: 600px) {
-    .header { top: 12px; }
-    .header h1 { font-size: 16px; }
-    .header p { font-size: 12px; }
-    .room-panel { font-size: 12px; padding: 10px 12px; }
+    .top-pill { top: 14px; font-size: 13px; padding: 6px 6px 6px 12px; gap: 8px; }
+    .pill-text { max-width: 140px; }
+    .share-btn { padding: 6px 14px; font-size: 12px; }
+    .room-code { top: 56px; font-size: 11px; letter-spacing: 3px; }
+    .members-row { top: 82px; gap: 6px; }
+    .member-chip { padding: 5px 12px; font-size: 12px; }
+    .reset-fab { bottom: 76px; right: 14px; width: 40px; height: 40px; }
   }
 </style>
 </head>
 <body>
   <div class="stars" id="stars"></div>
   <div class="confetti" id="confetti"></div>
-
-  <div class="header">
-    <h1 id="headerTitle">🎂 다 같이 후~ 불어주세요</h1>
-    <p id="headerSub">접속한 모든 사람이 불어야 촛불이 꺼져요</p>
-  </div>
 
   <!-- 케이크 -->
   <div class="stage">
@@ -678,28 +671,21 @@
     <p>🎉 모두가 함께 불어줘서 고마워요 🎉</p>
   </div>
 
-  <!-- 룸 패널 -->
-  <aside class="room-panel hidden" id="roomPanel">
-    <div id="roleBadge"></div>
-    <h3>🎂 방 이름</h3>
-    <div class="room-name-display" id="roomNameDisplay">—</div>
+  <!-- 상단 알약 (방이름 · 인원수 + 공유) -->
+  <div class="top-pill hidden" id="topPill">
+    <span class="status-dot"></span>
+    <span class="pill-text" id="pillText"></span>
+    <button class="share-btn" id="shareBtn">공유</button>
+  </div>
 
-    <div class="share-row" id="shareRow" style="display:none;">
-      <input type="text" id="shareUrl" readonly />
-      <button class="copy-btn" id="copyBtn">복사</button>
-    </div>
+  <!-- 룸 코드 (알약 아래 회색 모노스페이스) -->
+  <div class="room-code hidden" id="roomCode" title="클릭해서 코드 복사"></div>
 
-    <div class="members-section">
-      <h3>👥 접속한 사람</h3>
-      <ul class="members-list" id="membersList"></ul>
-    </div>
+  <!-- 멤버 칩 행 -->
+  <div class="members-row hidden" id="membersRow"></div>
 
-    <div class="room-stats" id="roomStats"></div>
-
-    <div class="host-controls hidden" id="hostControls">
-      <button class="reset-btn" id="resetBtn">🔄 다시 불기 (촛불 다시 켜기)</button>
-    </div>
-  </aside>
+  <!-- 호스트 전용 리셋 버튼 -->
+  <button class="reset-fab hidden" id="resetBtn" title="촛불 다시 켜기">🔄</button>
 
   <!-- 모달 -->
   <div class="modal-overlay" id="modal">
@@ -733,7 +719,8 @@
  * ============================================================ */
 const BLOW_THRESHOLD = 0.18;
 const SUSTAIN_MS = 120;          // 임계값을 이만큼 유지해야 인정 (잡음 방지)
-const PEER_PREFIX = 'birthday-'; // PeerJS 룸 ID 접두사
+const PEER_PREFIX = 'hoo-';      // PeerJS broker 충돌 회피용 접두사 (URL/UI에는 노출 X)
+const ROOM_CODE_LEN = 6;         // 사용자에게 보여줄 짧은 룸 코드 길이
 
 /* PeerJS 옵션
  * - debug: 2 → 콘솔에서 시그널링/연결 로그 확인 (문제 디버깅용)
@@ -765,7 +752,8 @@ const app = {
   myPeerId: null,
   myNickname: '',
   roomName: '',
-  hostId: null,          // 현재 방의 호스트 ID
+  hostId: null,          // 현재 방의 호스트 ID (내부 PeerJS broker용)
+  roomCode: '',          // 사용자에게 보여줄 짧은 코드 (예: WBFV5P)
   connections: {},       // [host 전용] peerId -> DataConnection
   hostConn: null,        // [guest 전용] 호스트와의 연결
   membersById: {},       // [host 전용] peerId -> { nickname, hasBlown, isHost }
@@ -793,16 +781,12 @@ const roomNameRow = $('roomNameRow');
 const roomNameInput = $('roomNameInput');
 const nicknameInput = $('nicknameInput');
 
-const roomPanel = $('roomPanel');
-const roleBadge = $('roleBadge');
-const roomNameDisplay = $('roomNameDisplay');
-const shareRow = $('shareRow');
-const shareUrl = $('shareUrl');
-const copyBtn  = $('copyBtn');
-const membersList = $('membersList');
-const roomStats   = $('roomStats');
-const hostControls = $('hostControls');
-const resetBtn = $('resetBtn');
+const topPill   = $('topPill');
+const pillText  = $('pillText');
+const shareBtn  = $('shareBtn');
+const roomCodeEl = $('roomCode');
+const membersRow = $('membersRow');
+const resetBtn  = $('resetBtn');
 
 const flames = document.querySelectorAll('[data-flame]');
 const smokes = document.querySelectorAll('[data-smoke]');
@@ -812,8 +796,6 @@ const meterThreshold = $('meterThreshold');
 const meterStatus = $('meterStatus');
 const greeting = $('greeting');
 const toast = $('toast');
-const headerTitle = $('headerTitle');
-const headerSub = $('headerSub');
 
 meterThreshold.style.left = (BLOW_THRESHOLD * 100 / (BLOW_THRESHOLD * 2)) + '%'; // 미터 폭 기준 표시
 
@@ -867,9 +849,10 @@ function initModal() {
   const roomFromUrl = params.get('room');
 
   if (roomFromUrl) {
-    // 게스트 모드
+    // 게스트 모드 — URL의 짧은 코드를 내부 peer ID로 변환
     app.mode = 'guest';
-    app.hostId = roomFromUrl;
+    app.roomCode = roomFromUrl.toUpperCase();
+    app.hostId = codeToPeerId(app.roomCode);
     modalBadge.className = 'badge guest';
     modalBadge.textContent = '🎈 GUEST';
     modalTitle.textContent = '🎂 파티에 입장하기';
@@ -929,10 +912,17 @@ async function onModalSubmit() {
 /* ============================================================
  * 호스트 시작
  * ============================================================ */
-function generateRoomId() {
-  const r = Math.random().toString(36).slice(2, 10);
-  return PEER_PREFIX + r;
+/* 짧은 사용자용 룸 코드 (대문자 + 숫자, 헷갈리는 0/O/1/I 제외) */
+function generateRoomCode() {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = '';
+  for (let i = 0; i < ROOM_CODE_LEN; i++) {
+    s += alphabet[Math.floor(Math.random() * alphabet.length)];
+  }
+  return s;
 }
+/* 내부 PeerJS broker용 ID (다른 PeerJS 앱과의 충돌 방지) */
+function codeToPeerId(code) { return PEER_PREFIX + code; }
 
 async function startHost() {
   // 룸 ID 생성 + Peer 생성 (재시도 로직)
@@ -940,8 +930,10 @@ async function startHost() {
   // promise 종료 후 잔여 리스너가 peer.destroy()를 호출하는 버그를 방지한다.
   let openedPeer = null;
   let lastErr = null;
+  let roomCode = '';
   for (let attempt = 0; attempt < 4 && !openedPeer; attempt++) {
-    const candidate = generateRoomId();
+    roomCode = generateRoomCode();
+    const candidate = codeToPeerId(roomCode);
     const peer = new Peer(candidate, PEER_OPTS);
     try {
       const id = await new Promise((resolve, reject) => {
@@ -976,8 +968,10 @@ async function startHost() {
     throw new Error('시그널링 서버 연결 실패' + (lastErr ? ` (${lastErr.type || lastErr.message})` : ''));
   }
 
-  // URL 업데이트 (공유 가능하도록)
-  history.replaceState(null, '', `?room=${encodeURIComponent(app.hostId)}`);
+  // 사용자에게 보여줄 짧은 코드 저장 (UI/URL용)
+  app.roomCode = roomCode;
+  // URL은 짧은 코드만 노출 (예: ?room=WBFV5P)
+  history.replaceState(null, '', `?room=${roomCode}`);
 
   // 자기 자신을 멤버에 추가
   app.membersById[app.hostId] = {
@@ -1204,26 +1198,20 @@ function applyState(state) {
  * ============================================================ */
 function finishLobby() {
   modal.classList.add('hidden');
-  roomPanel.classList.remove('hidden');
+  topPill.classList.remove('hidden');
+  roomCodeEl.classList.remove('hidden');
+  membersRow.classList.remove('hidden');
   meterWrap.classList.remove('hidden');
 
+  // 룸 코드 표시 (스크린샷의 "WBFV5P" 자리)
+  roomCodeEl.textContent = app.roomCode || '—';
+
   if (app.mode === 'host') {
-    roleBadge.className = 'badge host';
-    roleBadge.textContent = '👑 HOST';
-    roomNameDisplay.textContent = app.roomName;
-    shareRow.style.display = '';
-    shareUrl.value = location.href;
-    hostControls.classList.remove('hidden');
-    headerTitle.textContent = '🎂 친구들과 다 같이 후~ 불어보세요';
-    headerSub.textContent = 'URL을 공유하고, 모두가 불면 촛불이 꺼져요';
+    resetBtn.classList.remove('hidden');
+    shareBtn.classList.remove('guest-hide');
   } else {
-    roleBadge.className = 'badge guest';
-    roleBadge.textContent = '🎈 GUEST';
-    roomNameDisplay.textContent = '연결 중…';
-    shareRow.style.display = 'none';
-    hostControls.classList.add('hidden');
-    headerTitle.textContent = '🎂 친구들과 다 같이 후~ 불어보세요';
-    headerSub.textContent = '모두가 불어야 촛불이 꺼져요';
+    resetBtn.classList.add('hidden');
+    shareBtn.classList.remove('guest-hide'); // 게스트도 같은 URL 공유 가능
   }
 }
 
@@ -1231,38 +1219,72 @@ function finishLobby() {
  * 룸 패널 렌더링
  * ============================================================ */
 function renderRoom() {
-  roomNameDisplay.textContent = app.roomName || '—';
+  // 상단 알약: 방 이름 · N명
+  const count = app.members.length;
+  pillText.innerHTML = '';
+  const name = document.createElement('span');
+  name.textContent = app.roomName || '—';
+  const sep = document.createElement('span');
+  sep.className = 'pill-sep';
+  sep.textContent = ' · ';
+  const cnt = document.createElement('span');
+  cnt.textContent = count + '명';
+  pillText.append(name, sep, cnt);
 
-  membersList.innerHTML = '';
-  let blownCount = 0;
+  // 룸 코드 표시
+  roomCodeEl.textContent = app.roomCode || '—';
+
+  // 멤버 칩 행
+  membersRow.innerHTML = '';
   app.members.forEach(m => {
-    if (m.hasBlown) blownCount++;
-    const li = document.createElement('li');
-    li.className = 'member' + (m.hasBlown ? ' blown' : '') + (m.id === app.myPeerId ? ' me' : '');
-    li.innerHTML = `
-      <div class="member-icon">${m.isHost ? '👑' : (m.hasBlown ? '✓' : '🎤')}</div>
-      <div class="member-name"></div>
-      <div class="member-status">${m.hasBlown ? '불었어요!' : '준비 중…'}</div>
-    `;
-    li.querySelector('.member-name').textContent = m.nickname;
-    membersList.appendChild(li);
-  });
+    const chip = document.createElement('div');
+    const cls = ['member-chip'];
+    if (m.isHost) cls.push('host');
+    if (m.hasBlown) cls.push('blown');
+    chip.className = cls.join(' ');
 
-  roomStats.innerHTML = `<span>접속 ${app.members.length}명</span><span>불었어요 ${blownCount}/${app.members.length}</span>`;
+    const icon = m.isHost ? '👑' : (m.hasBlown ? '✓' : '🎈');
+    chip.append(document.createTextNode(icon + ' '));
+
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = m.nickname;
+    chip.appendChild(nameSpan);
+
+    if (m.id === app.myPeerId) {
+      const me = document.createElement('span');
+      me.className = 'me-tag';
+      me.textContent = '(나)';
+      chip.appendChild(me);
+    }
+    membersRow.appendChild(chip);
+  });
 }
 
 /* ============================================================
  * 공유 URL 복사
  * ============================================================ */
-copyBtn.addEventListener('click', async () => {
+async function copyText(text, msg) {
   try {
-    await navigator.clipboard.writeText(location.href);
-    showToast('🔗 URL을 복사했어요!');
+    await navigator.clipboard.writeText(text);
   } catch (_) {
-    shareUrl.select();
-    document.execCommand('copy');
-    showToast('🔗 URL을 복사했어요!');
+    // 폴백: 임시 textarea로 복사
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (_) {}
+    document.body.removeChild(ta);
   }
+  showToast(msg);
+}
+
+shareBtn.addEventListener('click', () => {
+  copyText(location.href, '🔗 초대 URL을 복사했어요!');
+});
+roomCodeEl.addEventListener('click', () => {
+  if (app.roomCode) copyText(app.roomCode, '🔢 룸 코드를 복사했어요!');
 });
 
 /* ============================================================
