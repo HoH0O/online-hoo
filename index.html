@@ -732,7 +732,9 @@
  * 권장: 0.10 ~ 0.30 (작을수록 민감, 클수록 둔감)
  * ============================================================ */
 const BLOW_THRESHOLD = 0.10;
-const SUSTAIN_MS = 120;          // 임계값을 이만큼 유지해야 인정 (잡음 방지)
+const SUSTAIN_MS = 60;           // 임계값 위에 유지되어야 하는 시간 (잡음 방지). 짧을수록 즉시 반응
+const PEAK_DECAY = 0.85;         // 피크 홀드 감쇠율 (1프레임당). 1에 가까울수록 천천히 내려옴
+                                 //  → "후~" 도중 RMS가 잠깐 떨어져도 미터·트리거가 끊기지 않게 한다
 const PEER_PREFIX = 'birthday-'; // PeerJS 룸 ID 접두사
 
 /* PeerJS 옵션
@@ -1337,6 +1339,9 @@ async function startMic() {
   src.connect(app.analyser);
 
   const dataArr = new Uint8Array(app.analyser.fftSize);
+  let peakRms = 0;          // 피크-홀드값. 즉시 올라가고 천천히 내려옴
+  let belowSince = 0;       // 임계값 아래로 내려간 순간 (grace period 측정용)
+  const GRACE_MS = 80;      // 임계값 아래로 내려가도 이 시간 안에 다시 올라오면 sustain 유지
 
   const loop = () => {
     app.analyser.getByteTimeDomainData(dataArr);
@@ -1347,20 +1352,27 @@ async function startMic() {
     }
     const rms = Math.sqrt(sum / dataArr.length);
 
-    const display = Math.min(1, rms / (BLOW_THRESHOLD * 2));
+    // 피크 홀드: 올라갈 때는 즉시, 내려갈 때는 PEAK_DECAY 만큼만 감쇠.
+    // 이렇게 하면 "후~" 도중 RMS가 잠깐 dip 해도 표시값/트리거 모두 끊기지 않는다.
+    peakRms = Math.max(rms, peakRms * PEAK_DECAY);
+
+    const display = Math.min(1, peakRms / (BLOW_THRESHOLD * 2));
     meterFill.style.width = (display * 100) + '%';
 
-    const windy = rms > BLOW_THRESHOLD * 0.5;
+    const windy = peakRms > BLOW_THRESHOLD * 0.5;
     flames.forEach(f => f.classList.toggle('windy', windy && !app.blownOut));
 
     const now = performance.now();
-    if (rms > BLOW_THRESHOLD) {
+    if (peakRms > BLOW_THRESHOLD) {
       if (app.aboveSince === 0) app.aboveSince = now;
+      belowSince = 0;
       if (!app.myBlown && now - app.aboveSince >= SUSTAIN_MS) {
         myBlow();
       }
     } else {
-      app.aboveSince = 0;
+      // 곧바로 reset 하지 않고 GRACE_MS 만큼 유예 — 짧은 dip 은 무시
+      if (belowSince === 0) belowSince = now;
+      if (now - belowSince > GRACE_MS) app.aboveSince = 0;
     }
 
     app.rafId = requestAnimationFrame(loop);
