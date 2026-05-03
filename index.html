@@ -3,14 +3,19 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>생일 축하해 🎂 — 다 같이 후~ 불어요</title>
-<!-- PeerJS: 멀티플레이어 P2P 통신용 (공용 시그널링 서버 사용) -->
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<title>생일 축하해 🎂 — 후~ 불어보세요</title>
 <style>
   :root {
     --bg-1: #2b1055;
     --bg-2: #7597de;
+    --cake-bottom: #f4a8b8;
+    --cake-mid: #fff4f0;
+    --cake-top: #ffd1dc;
     --cream: #fff8f3;
+    --candle: #f6e3c5;
+    --wick: #2b1810;
+    --flame-outer: #ffae00;
+    --flame-inner: #fff3a0;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,7 +38,7 @@
     min-height: 100vh;
   }
 
-  /* ===== 별 + 색종이 ===== */
+  /* ===== 별 + 색종이 배경 ===== */
   .stars, .confetti {
     position: absolute;
     inset: 0;
@@ -42,9 +47,11 @@
   }
   .star {
     position: absolute;
-    width: 2px; height: 2px;
+    width: 2px;
+    height: 2px;
     background: #fff;
     border-radius: 50%;
+    opacity: 0.85;
     animation: twinkle 3s infinite ease-in-out;
   }
   @keyframes twinkle {
@@ -54,7 +61,8 @@
   .confetti span {
     position: absolute;
     top: -10vh;
-    width: 10px; height: 14px;
+    width: 10px;
+    height: 14px;
     opacity: 0.85;
     animation: fall linear infinite;
     border-radius: 2px;
@@ -64,287 +72,53 @@
     100% { transform: translateY(110vh) rotate(720deg); }
   }
 
-  /* ===== 헤더 ===== */
+  /* ===== 상단 안내 ===== */
   .header {
     position: absolute;
-    top: 24px;
+    top: 30px;
     z-index: 20;
     text-align: center;
     color: #fff;
-    padding: 0 16px;
   }
   .header h1 {
-    font-size: clamp(18px, 2.6vw, 24px);
+    font-size: clamp(20px, 3vw, 28px);
     font-weight: 600;
+    letter-spacing: 0.5px;
     text-shadow: 0 2px 8px rgba(0,0,0,0.35);
   }
   .header p {
-    margin-top: 6px;
-    font-size: 13px;
+    margin-top: 8px;
+    font-size: 14px;
     color: #f5e4ff;
     opacity: 0.9;
   }
 
-  /* ===== 모달 ===== */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 200;
-    background: rgba(20, 8, 40, 0.78);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn 0.4s ease;
-    padding: 20px;
-  }
-  .modal-overlay.hidden { display: none; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-  .modal-card {
-    width: min(420px, 100%);
-    background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04));
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 24px;
-    padding: 32px 28px;
+  /* ===== 마이크 시작 버튼 ===== */
+  .start-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    padding: 16px 36px;
+    background: linear-gradient(135deg, #ff8a8a, #ffb38a);
     color: #fff;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
-    animation: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  @keyframes pop {
-    from { transform: scale(0.85); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-  .modal-card h2 {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 8px;
-  }
-  .modal-sub {
-    font-size: 13px;
-    color: #e9d5ff;
-    margin-bottom: 22px;
-    line-height: 1.5;
-  }
-  .form-row { margin-bottom: 16px; }
-  .form-row label {
-    display: block;
-    font-size: 12px;
+    font-size: 17px;
     font-weight: 600;
-    color: #f0d4ff;
-    margin-bottom: 6px;
-    letter-spacing: 0.3px;
-  }
-  .form-row input {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1px solid rgba(255,255,255,0.25);
-    background: rgba(0,0,0,0.25);
-    color: #fff;
-    font-size: 15px;
-    border-radius: 12px;
-    outline: none;
-    transition: border-color 0.2s, background 0.2s;
-    font-family: inherit;
-  }
-  .form-row input:focus {
-    border-color: #ffaae0;
-    background: rgba(0,0,0,0.4);
-  }
-  .form-row input::placeholder { color: rgba(255,255,255,0.4); }
-
-  .modal-card button {
-    width: 100%;
-    margin-top: 10px;
-    padding: 14px;
     border: none;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #ff8aae, #ffb38a);
-    color: #fff;
-    font-size: 16px;
-    font-weight: 700;
+    border-radius: 50px;
     cursor: pointer;
-    transition: transform 0.1s, box-shadow 0.2s;
-    font-family: inherit;
+    box-shadow: 0 10px 30px rgba(255, 138, 138, 0.5), 0 0 0 0 rgba(255, 138, 138, 0.7);
+    transition: transform 0.2s, box-shadow 0.2s;
+    animation: btnPulse 2s infinite;
   }
-  .modal-card button:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(255, 138, 174, 0.45); }
-  .modal-card button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-  .modal-error {
-    margin-top: 10px;
-    padding: 10px 12px;
-    background: rgba(255, 80, 80, 0.18);
-    border: 1px solid rgba(255, 80, 80, 0.4);
-    border-radius: 10px;
-    font-size: 13px;
-    color: #ffd5d5;
-  }
-  .modal-error[hidden] { display: none; }
-
-  .badge {
-    display: inline-block;
-    padding: 3px 10px;
-    margin-bottom: 10px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 999px;
-    font-size: 11px;
-    letter-spacing: 1px;
-    font-weight: 600;
-  }
-  .badge.host { background: linear-gradient(90deg, #ffd24a, #ff8aae); color: #2b1055; }
-  .badge.guest { background: rgba(122,252,255,0.25); color: #d8fbff; }
-
-  /* ===== 룸 패널 ===== */
-  .room-panel {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    z-index: 150;
-    width: min(280px, calc(100vw - 32px));
-    background: rgba(20, 10, 40, 0.55);
-    border: 1px solid rgba(255,255,255,0.18);
-    border-radius: 16px;
-    padding: 14px 16px;
-    color: #fff;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    font-size: 13px;
-    transition: opacity 0.3s;
-  }
-  .room-panel.hidden { display: none; }
-  .room-panel h3 {
-    font-size: 11px;
-    font-weight: 600;
-    color: #f0d4ff;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-  }
-  .room-name-display {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 12px;
-    word-break: break-word;
+  .start-btn:hover { transform: translate(-50%, -50%) scale(1.06); }
+  @keyframes btnPulse {
+    0%, 100% { box-shadow: 0 10px 30px rgba(255, 138, 138, 0.5), 0 0 0 0 rgba(255, 138, 138, 0.7); }
+    50%      { box-shadow: 0 10px 30px rgba(255, 138, 138, 0.5), 0 0 0 18px rgba(255, 138, 138, 0); }
   }
 
-  .share-row {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 12px;
-  }
-  .share-row input {
-    flex: 1;
-    min-width: 0;
-    padding: 7px 10px;
-    background: rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 8px;
-    color: #fff;
-    font-size: 11px;
-    font-family: monospace;
-  }
-  .copy-btn {
-    padding: 7px 12px;
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.25);
-    color: #fff;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 12px;
-    font-family: inherit;
-    white-space: nowrap;
-    transition: background 0.2s;
-  }
-  .copy-btn:hover { background: rgba(255,255,255,0.25); }
-
-  .members-section h3 { margin-bottom: 8px; }
-  .members-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-height: 180px;
-    overflow-y: auto;
-  }
-  .members-list::-webkit-scrollbar { width: 4px; }
-  .members-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
-
-  .member {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 8px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 10px;
-    transition: background 0.25s;
-    font-size: 13px;
-  }
-  .member.blown { background: rgba(120, 230, 140, 0.15); }
-  .member-icon {
-    width: 22px;
-    height: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.12);
-    font-size: 13px;
-    flex-shrink: 0;
-  }
-  .member.blown .member-icon {
-    background: linear-gradient(135deg, #6ddc8e, #41b96a);
-  }
-  .member-name {
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .member.me .member-name::after {
-    content: ' (나)';
-    color: #ffd24a;
-    font-size: 11px;
-  }
-  .member-status {
-    font-size: 11px;
-    color: rgba(255,255,255,0.7);
-    flex-shrink: 0;
-  }
-  .member.blown .member-status { color: #b8f3c7; }
-
-  .room-stats {
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid rgba(255,255,255,0.12);
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: #d8c8f0;
-  }
-
-  .host-controls {
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid rgba(255,255,255,0.12);
-  }
-  .host-controls.hidden { display: none; }
-  .reset-btn {
-    width: 100%;
-    padding: 8px;
-    background: rgba(255, 200, 100, 0.15);
-    border: 1px solid rgba(255, 200, 100, 0.4);
-    color: #ffe7b3;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 12px;
-    font-family: inherit;
-    transition: background 0.2s;
-  }
-  .reset-btn:hover { background: rgba(255, 200, 100, 0.3); }
-
-  /* ===== 케이크 ===== */
+  /* ===== 케이크 무대 ===== */
   .stage {
     position: relative;
     width: min(90vw, 480px);
@@ -366,6 +140,7 @@
     50% { transform: translateY(-6px); }
   }
 
+  /* 접시 */
   .plate {
     position: absolute;
     bottom: 0;
@@ -378,6 +153,7 @@
     box-shadow: 0 8px 20px rgba(0,0,0,0.4);
   }
 
+  /* 케이크 단(레이어) */
   .layer {
     position: absolute;
     left: 50%;
@@ -385,24 +161,44 @@
     border-radius: 12px;
     box-shadow: inset 0 -8px 0 rgba(0,0,0,0.06), 0 4px 14px rgba(0,0,0,0.25);
   }
-  .layer-bottom { bottom: 22px;  width: 280px; height: 90px; background: linear-gradient(180deg, #ffb6c8 0%, #ff89a8 100%); }
-  .layer-mid    { bottom: 110px; width: 220px; height: 75px; background: linear-gradient(180deg, #fff4f0 0%, #ffd9c4 100%); }
-  .layer-top    { bottom: 183px; width: 160px; height: 60px; background: linear-gradient(180deg, #ffe1ec 0%, #ffb3cd 100%); }
+  .layer-bottom {
+    bottom: 22px;
+    width: 280px;
+    height: 90px;
+    background: linear-gradient(180deg, #ffb6c8 0%, #ff89a8 100%);
+  }
+  .layer-mid {
+    bottom: 110px;
+    width: 220px;
+    height: 75px;
+    background: linear-gradient(180deg, #fff4f0 0%, #ffd9c4 100%);
+  }
+  .layer-top {
+    bottom: 183px;
+    width: 160px;
+    height: 60px;
+    background: linear-gradient(180deg, #ffe1ec 0%, #ffb3cd 100%);
+  }
 
+  /* 크림 흘러내림 */
   .drip {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    height: 14px;
     background: var(--cream);
     border-radius: 0 0 50% 50% / 0 0 100% 100%;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.04);
   }
   .drip-bottom { bottom: 100px; width: 280px; height: 22px; }
   .drip-mid    { bottom: 178px; width: 220px; height: 18px; }
   .drip-top    { bottom: 238px; width: 160px; height: 14px; }
 
+  /* 데코: 체리 */
   .cherry {
     position: absolute;
-    width: 14px; height: 14px;
+    width: 14px;
+    height: 14px;
     background: radial-gradient(circle at 30% 30%, #ff6f7a, #b30021);
     border-radius: 50%;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -412,7 +208,8 @@
     position: absolute;
     top: -6px;
     left: 6px;
-    width: 2px; height: 8px;
+    width: 2px;
+    height: 8px;
     background: #4a3019;
     transform: rotate(15deg);
   }
@@ -422,21 +219,27 @@
   .c4 { bottom: 184px; left: 60px; }
   .c5 { bottom: 184px; right: 60px; }
 
+  /* 양초 (긴 한 개 + 짧은 두 개) */
   .candle {
     position: absolute;
     bottom: 240px;
     width: 18px;
-    background: repeating-linear-gradient(180deg,
-      #fff8e0 0px, #fff8e0 6px,
-      #fbe1a3 6px, #fbe1a3 12px);
+    background: repeating-linear-gradient(
+      180deg,
+      #fff8e0 0px,
+      #fff8e0 6px,
+      #fbe1a3 6px,
+      #fbe1a3 12px
+    );
     border-radius: 4px 4px 2px 2px;
     box-shadow: inset -4px 0 0 rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.2);
     z-index: 5;
   }
-  .candle.center { left: 50%; transform: translateX(-50%); height: 70px; }
-  .candle.left   { left: calc(50% - 50px); height: 50px; }
-  .candle.right  { left: calc(50% + 32px); height: 50px; }
+  .candle.center { left: 50%; transform: translateX(-50%); height: 70px; bottom: 240px; }
+  .candle.left   { left: calc(50% - 50px); height: 50px; bottom: 240px; }
+  .candle.right  { left: calc(50% + 32px); height: 50px; bottom: 240px; }
 
+  /* 심지 */
   .wick {
     position: absolute;
     top: -6px;
@@ -444,10 +247,11 @@
     transform: translateX(-50%);
     width: 2px;
     height: 6px;
-    background: #2b1810;
+    background: var(--wick);
     border-radius: 1px;
   }
 
+  /* 불꽃 */
   .flame {
     position: absolute;
     top: -34px;
@@ -456,7 +260,11 @@
     width: 18px;
     height: 32px;
     background: radial-gradient(ellipse at center bottom,
-      #fff3a0 0%, #ffd24a 25%, #ff8a00 60%, #ff4400 90%, transparent 100%);
+      #fff3a0 0%,
+      #ffd24a 25%,
+      #ff8a00 60%,
+      #ff4400 90%,
+      transparent 100%);
     border-radius: 50% 50% 35% 35% / 70% 70% 30% 30%;
     transform-origin: bottom center;
     animation: flicker 0.18s infinite alternate;
@@ -467,16 +275,19 @@
     transition: opacity 0.4s ease, transform 0.4s ease;
   }
   .flame::before {
+    /* 안쪽 푸른 코어 */
     content: '';
     position: absolute;
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 6px; height: 8px;
+    width: 6px;
+    height: 8px;
     background: radial-gradient(ellipse, #88c5ff 0%, transparent 80%);
     border-radius: 50%;
     opacity: 0.85;
   }
+
   @keyframes flicker {
     0%   { transform: translateX(-50%) rotate(-2deg) scale(1, 1); }
     25%  { transform: translateX(-50%) rotate(2deg)  scale(1.05, 0.95); }
@@ -484,7 +295,14 @@
     75%  { transform: translateX(-50%) rotate(3deg)  scale(1.04, 0.98); }
     100% { transform: translateX(-50%) rotate(-3deg) scale(0.98, 1.05); }
   }
-  .flame.windy { animation: flicker 0.08s infinite alternate; }
+
+  /* 바람 강도에 따라 흔들림 강해지도록 */
+  .flame.windy {
+    animation: flicker 0.08s infinite alternate;
+    transform-origin: bottom center;
+  }
+
+  /* 꺼진 상태 */
   .flame.out {
     opacity: 0;
     transform: translateX(-50%) scale(0.2);
@@ -492,18 +310,22 @@
     filter: none;
   }
 
+  /* 연기 */
   .smoke {
     position: absolute;
     top: -36px;
     left: 50%;
     transform: translateX(-50%);
-    width: 8px; height: 8px;
+    width: 8px;
+    height: 8px;
     background: radial-gradient(circle, rgba(220,220,220,0.7), transparent 70%);
     border-radius: 50%;
     opacity: 0;
     pointer-events: none;
   }
-  .smoke.on { animation: smokeRise 1.6s ease-out forwards; }
+  .smoke.on {
+    animation: smokeRise 1.6s ease-out forwards;
+  }
   @keyframes smokeRise {
     0%   { opacity: 0.9; transform: translateX(-50%) translateY(0) scale(0.8); }
     100% { opacity: 0;   transform: translateX(-50%) translateY(-80px) scale(2.4); }
@@ -512,7 +334,7 @@
   /* ===== 볼륨 미터 ===== */
   .meter-wrap {
     position: absolute;
-    bottom: 24px;
+    bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
     width: min(80vw, 360px);
@@ -520,13 +342,11 @@
     color: #fff;
     text-align: center;
     font-size: 13px;
+    opacity: 0.95;
   }
   .meter-wrap.hidden { display: none; }
-  .meter-status {
-    margin-bottom: 6px;
-    font-weight: 500;
-  }
   .meter-bar {
+    margin-top: 8px;
     height: 10px;
     background: rgba(255,255,255,0.18);
     border-radius: 999px;
@@ -542,7 +362,8 @@
   }
   .meter-threshold {
     position: absolute;
-    top: -3px; bottom: -3px;
+    top: -3px;
+    bottom: -3px;
     width: 2px;
     background: #fff;
     box-shadow: 0 0 6px #fff;
@@ -560,7 +381,6 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-    width: 90%;
   }
   .greeting.show {
     opacity: 1;
@@ -589,46 +409,58 @@
     letter-spacing: 1px;
     text-shadow: 0 2px 8px rgba(0,0,0,0.4);
   }
+  .replay {
+    margin-top: 24px;
+    padding: 10px 22px;
+    border: 1px solid rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 14px;
+    backdrop-filter: blur(6px);
+    transition: background 0.2s;
+    pointer-events: auto;
+  }
+  .replay:hover { background: rgba(255,255,255,0.18); }
 
   /* 토스트 */
   .toast {
-    position: fixed;
-    bottom: 24px;
+    position: absolute;
+    bottom: 90px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0,0,0,0.7);
+    background: rgba(0,0,0,0.55);
     color: #fff;
     padding: 10px 18px;
     border-radius: 999px;
     font-size: 13px;
-    z-index: 300;
+    z-index: 60;
     opacity: 0;
     transition: opacity 0.3s;
     backdrop-filter: blur(8px);
-    pointer-events: none;
   }
   .toast.show { opacity: 1; }
-
-  @media (max-width: 600px) {
-    .header { top: 12px; }
-    .header h1 { font-size: 16px; }
-    .header p { font-size: 12px; }
-    .room-panel { font-size: 12px; padding: 10px 12px; }
-  }
 </style>
 </head>
 <body>
+  <!-- 배경: 별 + 색종이 -->
   <div class="stars" id="stars"></div>
   <div class="confetti" id="confetti"></div>
 
+  <!-- 상단 안내 -->
   <div class="header">
-    <h1 id="headerTitle">🎂 다 같이 후~ 불어주세요</h1>
-    <p id="headerSub">접속한 모든 사람이 불어야 촛불이 꺼져요</p>
+    <h1>🎂 마이크에 "후~" 하고 불어보세요</h1>
+    <p>촛불이 꺼지면 깜짝 메시지가 나타나요</p>
   </div>
+
+  <!-- 시작 버튼 (마이크 권한용 사용자 제스처 필요) -->
+  <button class="start-btn" id="startBtn">🎤 시작하기 (마이크 켜기)</button>
 
   <!-- 케이크 -->
   <div class="stage">
     <div class="cake">
+      <!-- 양초 3개 -->
       <div class="candle left">
         <div class="wick"></div>
         <div class="flame" data-flame></div>
@@ -645,6 +477,7 @@
         <div class="smoke" data-smoke></div>
       </div>
 
+      <!-- 케이크 본체 -->
       <div class="layer layer-top"></div>
       <div class="drip drip-top"></div>
       <div class="cherry c4"></div>
@@ -665,7 +498,7 @@
 
   <!-- 볼륨 미터 -->
   <div class="meter-wrap hidden" id="meterWrap">
-    <div class="meter-status" id="meterStatus">🎤 마이크에 "후~" 하고 불어주세요</div>
+    <div>입김 감지 중… (흰색 선이 임계값)</div>
     <div class="meter-bar">
       <div class="meter-fill" id="meterFill"></div>
       <div class="meter-threshold" id="meterThreshold"></div>
@@ -675,52 +508,8 @@
   <!-- 축하 메시지 -->
   <div class="greeting" id="greeting">
     <h2>생일축하해</h2>
-    <p>🎉 모두가 함께 불어줘서 고마워요 🎉</p>
-  </div>
-
-  <!-- 룸 패널 -->
-  <aside class="room-panel hidden" id="roomPanel">
-    <div id="roleBadge"></div>
-    <h3>🎂 방 이름</h3>
-    <div class="room-name-display" id="roomNameDisplay">—</div>
-
-    <div class="share-row" id="shareRow" style="display:none;">
-      <input type="text" id="shareUrl" readonly />
-      <button class="copy-btn" id="copyBtn">복사</button>
-    </div>
-
-    <div class="members-section">
-      <h3>👥 접속한 사람</h3>
-      <ul class="members-list" id="membersList"></ul>
-    </div>
-
-    <div class="room-stats" id="roomStats"></div>
-
-    <div class="host-controls hidden" id="hostControls">
-      <button class="reset-btn" id="resetBtn">🔄 다시 불기 (촛불 다시 켜기)</button>
-    </div>
-  </aside>
-
-  <!-- 모달 -->
-  <div class="modal-overlay" id="modal">
-    <div class="modal-card">
-      <div class="badge" id="modalBadge"></div>
-      <h2 id="modalTitle">🎉 생일 파티 만들기</h2>
-      <p class="modal-sub" id="modalSub">방장이 되어 친구들을 초대해 보세요</p>
-
-      <div class="form-row" id="roomNameRow">
-        <label for="roomNameInput">방 이름 <span style="color:#ffd24a">(방장만 설정 가능)</span></label>
-        <input type="text" id="roomNameInput" placeholder="예: 지수 생일파티 🎂" maxlength="30" />
-      </div>
-
-      <div class="form-row">
-        <label for="nicknameInput">내 닉네임</label>
-        <input type="text" id="nicknameInput" placeholder="예: 호두" maxlength="20" />
-      </div>
-
-      <p class="modal-error" id="modalError" hidden></p>
-      <button id="modalSubmit">파티 시작하기</button>
-    </div>
+    <p>🎉 당신의 하루가 가장 빛나는 순간으로 가득하기를 🎉</p>
+    <button class="replay" id="replayBtn">다시 불어보기</button>
   </div>
 
   <!-- 토스트 -->
@@ -728,103 +517,36 @@
 
 <script>
 /* ============================================================
- * 🎚️ 마이크 볼륨 임계값 — 이 값을 조정하면 입김 감지 민감도가 바뀝니다.
- * 권장: 0.10 ~ 0.30 (작을수록 민감, 클수록 둔감)
+ * 🎚️ 마이크 볼륨 임계값 (THRESHOLD)
+ * 이 값을 조정하면 "얼마나 세게 불어야 촛불이 꺼지는지" 결정됩니다.
+ * - 값이 작으면 작은 소리에도 반응 (민감)
+ * - 값이 크면 정말 세게 불어야 반응 (둔감)
+ * 권장 범위: 0.10 ~ 0.30
  * ============================================================ */
-const BLOW_THRESHOLD = 0.10;
-const SUSTAIN_MS = 60;           // 임계값 위에 유지되어야 하는 시간 (잡음 방지). 짧을수록 즉시 반응
-const PEAK_DECAY = 0.85;         // 피크 홀드 감쇠율 (1프레임당). 1에 가까울수록 천천히 내려옴
-                                 //  → "후~" 도중 RMS가 잠깐 떨어져도 미터·트리거가 끊기지 않게 한다
-const PEER_PREFIX = 'birthday-'; // PeerJS 룸 ID 접두사
-
-/* PeerJS 옵션
- * - debug: 2 → 콘솔에서 시그널링/연결 로그 확인 (문제 디버깅용)
- * - config.iceServers: WebRTC NAT 통과를 위한 STUN/TURN 서버
- *   (STUN: 공인 IP 조회, TURN: 대칭 NAT/방화벽 우회용 릴레이)
- * - openrelay TURN은 무료 공용이므로 가용성이 보장되지 않을 수 있음.
- */
-const PEER_OPTS = {
-  debug: 2,
-  config: {
-    iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:stun2.l.google.com:19302' },
-      { urls: 'stun:global.stun.twilio.com:3478' },
-      { urls: 'turn:openrelay.metered.ca:80',  username: 'openrelayproject', credential: 'openrelayproject' },
-      { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
-      { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
-    ],
-  },
-};
+const BLOW_THRESHOLD = 0.18;
 
 /* ============================================================
- * 전역 앱 상태
+ * 🎚️ 임계값을 넘긴 상태가 유지되어야 하는 시간(ms)
+ * 너무 짧은 잡음(박수, 말소리 등)을 걸러내기 위해 사용합니다.
  * ============================================================ */
-const app = {
-  mode: null,            // 'host' | 'guest'
-  peer: null,            // PeerJS Peer 객체
-  myPeerId: null,
-  myNickname: '',
-  roomName: '',
-  hostId: null,          // 현재 방의 호스트 ID
-  connections: {},       // [host 전용] peerId -> DataConnection
-  hostConn: null,        // [guest 전용] 호스트와의 연결
-  membersById: {},       // [host 전용] peerId -> { nickname, hasBlown, isHost }
-  members: [],           // 화면 렌더링용 배열 (양쪽 공통)
-  blownOut: false,
-  myBlown: false,
-  audioCtx: null,
-  analyser: null,
-  micStream: null,
-  rafId: null,
-  aboveSince: 0,
-};
+const SUSTAIN_MS = 120;
 
-/* ============================================================
- * DOM 참조
- * ============================================================ */
-const $ = (id) => document.getElementById(id);
-const modal       = $('modal');
-const modalBadge  = $('modalBadge');
-const modalTitle  = $('modalTitle');
-const modalSub    = $('modalSub');
-const modalError  = $('modalError');
-const modalSubmit = $('modalSubmit');
-const roomNameRow = $('roomNameRow');
-const roomNameInput = $('roomNameInput');
-const nicknameInput = $('nicknameInput');
-
-const roomPanel = $('roomPanel');
-const roleBadge = $('roleBadge');
-const roomNameDisplay = $('roomNameDisplay');
-const shareRow = $('shareRow');
-const shareUrl = $('shareUrl');
-const copyBtn  = $('copyBtn');
-const membersList = $('membersList');
-const roomStats   = $('roomStats');
-const hostControls = $('hostControls');
-const resetBtn = $('resetBtn');
-
+// ----- DOM 참조 -----
+const startBtn = document.getElementById('startBtn');
+const replayBtn = document.getElementById('replayBtn');
+const greeting = document.getElementById('greeting');
 const flames = document.querySelectorAll('[data-flame]');
 const smokes = document.querySelectorAll('[data-smoke]');
-const meterWrap = $('meterWrap');
-const meterFill = $('meterFill');
-const meterThreshold = $('meterThreshold');
-const meterStatus = $('meterStatus');
-const greeting = $('greeting');
-const toast = $('toast');
-const headerTitle = $('headerTitle');
-const headerSub = $('headerSub');
+const meterWrap = document.getElementById('meterWrap');
+const meterFill = document.getElementById('meterFill');
+const meterThreshold = document.getElementById('meterThreshold');
+const toast = document.getElementById('toast');
 
-meterThreshold.style.left = (BLOW_THRESHOLD * 100 / (BLOW_THRESHOLD * 2)) + '%'; // 미터 폭 기준 표시
-
-/* ============================================================
- * 배경 (별 + 색종이)
- * ============================================================ */
+// ----- 배경 별 생성 -----
 (function makeStars() {
-  const wrap = $('stars');
-  for (let i = 0; i < 80; i++) {
+  const wrap = document.getElementById('stars');
+  const count = 80;
+  for (let i = 0; i < count; i++) {
     const s = document.createElement('div');
     s.className = 'star';
     s.style.left = Math.random() * 100 + '%';
@@ -837,8 +559,10 @@ meterThreshold.style.left = (BLOW_THRESHOLD * 100 / (BLOW_THRESHOLD * 2)) + '%';
     wrap.appendChild(s);
   }
 })();
+
+// ----- 색종이 생성 -----
 (function makeConfetti() {
-  const wrap = $('confetti');
+  const wrap = document.getElementById('confetti');
   const colors = ['#ff8aae', '#ffd24a', '#7afcff', '#a18bff', '#ffaee0', '#90ee90'];
   for (let i = 0; i < 40; i++) {
     const c = document.createElement('span');
@@ -851,573 +575,158 @@ meterThreshold.style.left = (BLOW_THRESHOLD * 100 / (BLOW_THRESHOLD * 2)) + '%';
   }
 })();
 
-/* ============================================================
- * 토스트
- * ============================================================ */
-function showToast(msg, ms = 2500) {
+// ----- 임계값 마커 위치 표시 -----
+meterThreshold.style.left = (BLOW_THRESHOLD * 100) + '%';
+
+// ----- 토스트 -----
+function showToast(msg, ms = 2400) {
   toast.textContent = msg;
   toast.classList.add('show');
   clearTimeout(showToast._t);
   showToast._t = setTimeout(() => toast.classList.remove('show'), ms);
 }
 
-/* ============================================================
- * 모달 초기화 — URL에 ?room= 이 있으면 게스트 모드, 없으면 호스트 모드
- * ============================================================ */
-function initModal() {
-  const params = new URLSearchParams(location.search);
-  const roomFromUrl = params.get('room');
+// ----- 촛불 끄기 / 다시 켜기 -----
+let blownOut = false;
 
-  if (roomFromUrl) {
-    // 게스트 모드
-    app.mode = 'guest';
-    app.hostId = roomFromUrl;
-    modalBadge.className = 'badge guest';
-    modalBadge.textContent = '🎈 GUEST';
-    modalTitle.textContent = '🎂 파티에 입장하기';
-    modalSub.textContent = '닉네임만 입력하면 같이 촛불을 끌 수 있어요. (방 이름은 방장이 정해요)';
-    roomNameRow.style.display = 'none';
-  } else {
-    // 호스트 모드
-    app.mode = 'host';
-    modalBadge.className = 'badge host';
-    modalBadge.textContent = '👑 HOST';
-    modalTitle.textContent = '🎉 생일 파티 만들기';
-    modalSub.textContent = '방장이 되어 친구들을 초대해 보세요. URL을 공유하면 같이 불 수 있어요!';
-    roomNameRow.style.display = '';
-  }
-}
+function blowOutCandles() {
+  if (blownOut) return;
+  blownOut = true;
 
-modalSubmit.addEventListener('click', onModalSubmit);
-[roomNameInput, nicknameInput].forEach(el => {
-  el.addEventListener('keydown', e => {
-    if (e.key === 'Enter') onModalSubmit();
-  });
-});
-
-function showModalError(msg) {
-  modalError.textContent = msg;
-  modalError.hidden = false;
-}
-function clearModalError() { modalError.hidden = true; }
-
-async function onModalSubmit() {
-  clearModalError();
-  const nick = nicknameInput.value.trim();
-  if (!nick) return showModalError('닉네임을 입력해 주세요.');
-  if (nick.length > 20) return showModalError('닉네임은 20자 이하로 입력해 주세요.');
-  app.myNickname = nick;
-
-  if (app.mode === 'host') {
-    const rn = roomNameInput.value.trim();
-    if (!rn) return showModalError('방 이름을 입력해 주세요.');
-    app.roomName = rn;
-  }
-
-  modalSubmit.disabled = true;
-  modalSubmit.textContent = '연결 중…';
-
-  try {
-    if (app.mode === 'host') await startHost();
-    else                     await startGuest();
-  } catch (err) {
-    console.error(err);
-    showModalError(err.message || '연결에 실패했어요. 다시 시도해 주세요.');
-    modalSubmit.disabled = false;
-    modalSubmit.textContent = '파티 시작하기';
-  }
-}
-
-/* ============================================================
- * 호스트 시작
- * ============================================================ */
-function generateRoomId() {
-  const r = Math.random().toString(36).slice(2, 10);
-  return PEER_PREFIX + r;
-}
-
-async function startHost() {
-  // 룸 ID 생성 + Peer 생성 (재시도 로직)
-  // 초기 'open'/'error' 리스너는 .once() 또는 명시적 off()로 정리해서
-  // promise 종료 후 잔여 리스너가 peer.destroy()를 호출하는 버그를 방지한다.
-  let openedPeer = null;
-  let lastErr = null;
-  for (let attempt = 0; attempt < 4 && !openedPeer; attempt++) {
-    const candidate = generateRoomId();
-    const peer = new Peer(candidate, PEER_OPTS);
-    try {
-      const id = await new Promise((resolve, reject) => {
-        let done = false;
-        const finish = (val, err) => {
-          if (done) return;
-          done = true;
-          clearTimeout(timeout);
-          peer.off('open', onOpen);
-          peer.off('error', onError);
-          err ? reject(err) : resolve(val);
-        };
-        const onOpen = id => finish(id, null);
-        const onError = e => finish(null, e);
-        const timeout = setTimeout(() => finish(null, new Error('TIMEOUT')), 12000);
-        peer.on('open', onOpen);
-        peer.on('error', onError);
-      });
-      openedPeer = peer;
-      app.peer = peer;
-      app.myPeerId = id;
-      app.hostId = id;
-    } catch (e) {
-      lastErr = e;
-      console.warn('[Host] peer creation attempt failed:', e.type || e.message);
-      peer.destroy();
-      if (e.type === 'unavailable-id') continue; // ID 충돌 → 다른 ID로 재시도
-      // 다른 에러도 재시도
-    }
-  }
-  if (!openedPeer) {
-    throw new Error('시그널링 서버 연결 실패' + (lastErr ? ` (${lastErr.type || lastErr.message})` : ''));
-  }
-
-  // URL 업데이트 (공유 가능하도록)
-  history.replaceState(null, '', `?room=${encodeURIComponent(app.hostId)}`);
-
-  // 자기 자신을 멤버에 추가
-  app.membersById[app.hostId] = {
-    id: app.hostId,
-    nickname: app.myNickname,
-    hasBlown: false,
-    isHost: true,
-  };
-
-  // 게스트 연결 수신
-  app.peer.on('connection', conn => {
-    console.log('[Host] new guest attempting to connect:', conn.peer);
-    conn.on('open', () => {
-      console.log('[Host] connection OPEN with', conn.peer);
-    });
-    conn.on('data', msg => handleHostMessage(conn, msg));
-    conn.on('close', () => removeGuest(conn.peer));
-    conn.on('error', err => {
-      console.error('[Host] connection error from', conn.peer, err);
-      removeGuest(conn.peer);
-    });
-  });
-
-  app.peer.on('disconnected', () => {
-    console.warn('[Host] disconnected from broker, reconnecting…');
-    showToast('서버 연결 끊김 — 재접속 시도 중…');
-    try { app.peer.reconnect(); } catch (_) {}
-  });
-
-  // 영구 에러 핸들러
-  app.peer.on('error', err => {
-    console.error('[Host] peer error:', err.type, err);
-    if (err.type === 'network' || err.type === 'server-error') {
-      showToast(`📡 서버 오류 (${err.type})`, 4000);
-    }
-  });
-
-  // UI 전환
-  finishLobby();
-  showToast('🎉 방을 만들었어요! 우측 위에서 URL을 복사해 친구에게 공유하세요.', 4000);
-
-  // 마이크 시작
-  await startMic();
-}
-
-function handleHostMessage(conn, msg) {
-  if (!msg || !msg.type) return;
-  switch (msg.type) {
-    case 'join': {
-      const nick = String(msg.nickname || '익명').slice(0, 20);
-      app.connections[conn.peer] = conn;
-      app.membersById[conn.peer] = {
-        id: conn.peer,
-        nickname: nick,
-        hasBlown: false,
-        isHost: false,
-      };
-      showToast(`✨ ${nick} 님이 입장했어요`);
-      broadcastState();
-      break;
-    }
-    case 'blow': {
-      const m = app.membersById[conn.peer];
-      if (m) {
-        m.hasBlown = true;
-        broadcastState();
-      }
-      break;
-    }
-    case 'unblow': {
-      const m = app.membersById[conn.peer];
-      if (m) {
-        m.hasBlown = false;
-        broadcastState();
-      }
-      break;
-    }
-  }
-}
-
-function removeGuest(peerId) {
-  if (app.membersById[peerId]) {
-    const nick = app.membersById[peerId].nickname;
-    delete app.membersById[peerId];
-    delete app.connections[peerId];
-    showToast(`👋 ${nick} 님이 나갔어요`);
-    broadcastState();
-  }
-}
-
-function broadcastState() {
-  const stateMsg = {
-    type: 'state',
-    roomName: app.roomName,
-    hostId: app.hostId,
-    members: Object.values(app.membersById),
-  };
-  Object.values(app.connections).forEach(conn => {
-    try { conn.send(stateMsg); } catch (_) {}
-  });
-  applyState(stateMsg);
-}
-
-/* ============================================================
- * 게스트 시작
- * ============================================================ */
-async function startGuest() {
-  app.peer = new Peer(PEER_OPTS);
-
-  // 1) 시그널링 서버에 등록 (broker 'open' 이벤트 대기)
-  //    초기 리스너는 .off()로 명시 정리 — 이후 영구 'error' 핸들러가 따로 동작
-  app.myPeerId = await new Promise((resolve, reject) => {
-    let done = false;
-    const finish = (val, err) => {
-      if (done) return;
-      done = true;
-      clearTimeout(timeout);
-      app.peer.off('open', onOpen);
-      app.peer.off('error', onError);
-      err ? reject(err) : resolve(val);
-    };
-    const onOpen = id => finish(id, null);
-    const onError = e => finish(null, e);
-    const timeout = setTimeout(
-      () => finish(null, new Error('시그널링 서버 응답 지연 — 잠시 후 새로고침해 주세요.')),
-      12000
-    );
-    app.peer.on('open', onOpen);
-    app.peer.on('error', onError);
-  });
-  console.log('[Guest] my peer id:', app.myPeerId, '/ trying to reach host:', app.hostId);
-
-  // 2) 영구 에러 핸들러 — peer-unavailable, network 오류 등을 사용자에게 노출
-  app.peer.on('error', err => {
-    console.error('[Guest] peer error:', err.type, err);
-  });
-
-  // 3) 호스트로 연결 시도 (JSON 직렬화 + reliable로 안정성 확보)
-  app.hostConn = app.peer.connect(app.hostId, {
-    reliable: true,
-    serialization: 'json',
-  });
-  if (!app.hostConn) {
-    throw new Error('연결 객체를 만들 수 없어요. 페이지를 새로고침해 주세요.');
-  }
-
-  // 4) 데이터채널 'open' 또는 peer-level 'peer-unavailable' 중 먼저 발생하는 것 처리
-  await new Promise((resolve, reject) => {
-    let done = false;
-    const finish = (err) => {
-      if (done) return;
-      done = true;
-      clearTimeout(timeout);
-      app.hostConn.off('open', onOpen);
-      app.hostConn.off('error', onConnError);
-      app.peer.off('error', onPeerError);
-      err ? reject(err) : resolve();
-    };
-    const onOpen = () => finish(null);
-    const onConnError = e => {
-      console.error('[Guest] hostConn error:', e);
-      finish(new Error('연결 오류: ' + (e?.type || e?.message || 'unknown')));
-    };
-    // peer-unavailable 은 Peer 객체에서 발생함 (DataConnection 아님)
-    const onPeerError = e => {
-      if (e.type === 'peer-unavailable') {
-        finish(new Error('😢 방을 찾을 수 없어요. 방장이 자리를 비웠거나 방이 종료된 것 같아요.'));
-      } else if (e.type === 'network' || e.type === 'server-error' || e.type === 'socket-error') {
-        finish(new Error(`📡 시그널링 서버 오류 (${e.type}). 잠시 후 다시 시도해 주세요.`));
-      }
-    };
-    const timeout = setTimeout(
-      () => finish(new Error('방장과 연결할 수 없어요. 네트워크/방화벽이 P2P 연결을 막고 있을 수 있어요. 다른 네트워크에서 시도해 보세요.')),
-      20000
-    );
-    app.hostConn.on('open', onOpen);
-    app.hostConn.on('error', onConnError);
-    app.peer.on('error', onPeerError);
-  });
-  console.log('[Guest] connected to host!');
-
-  app.hostConn.on('data', msg => {
-    if (msg && msg.type === 'state') applyState(msg);
-  });
-  app.hostConn.on('close', () => {
-    showToast('😢 방장과의 연결이 끊겼어요', 4000);
-    setMeterStatus('연결이 끊겼어요. 페이지를 새로고침해 주세요.');
-  });
-
-  // 입장 메시지
-  app.hostConn.send({ type: 'join', nickname: app.myNickname });
-
-  finishLobby();
-  showToast('🎈 입장했어요! 같이 촛불을 불어요!', 3000);
-
-  // 마이크
-  await startMic();
-}
-
-/* ============================================================
- * 상태 적용 (양쪽 공통)
- * ============================================================ */
-function applyState(state) {
-  app.roomName = state.roomName || app.roomName;
-  app.hostId = state.hostId || app.hostId;
-  app.members = (state.members || []).slice();
-
-  // 내가 정말 호스트인지 모드 재확인
-  app.mode = (app.myPeerId === app.hostId) ? 'host' : 'guest';
-
-  renderRoom();
-
-  // 모두가 불었는지 확인
-  const allBlew = app.members.length > 0 && app.members.every(m => m.hasBlown);
-  if (allBlew && !app.blownOut) {
-    blowOutCandlesAnim();
-  } else if (!allBlew && app.blownOut) {
-    relightCandlesAnim();
-  }
-}
-
-/* ============================================================
- * UI 전환 (모달 → 게임 화면)
- * ============================================================ */
-function finishLobby() {
-  modal.classList.add('hidden');
-  roomPanel.classList.remove('hidden');
-  meterWrap.classList.remove('hidden');
-
-  if (app.mode === 'host') {
-    roleBadge.className = 'badge host';
-    roleBadge.textContent = '👑 HOST';
-    roomNameDisplay.textContent = app.roomName;
-    shareRow.style.display = '';
-    shareUrl.value = location.href;
-    hostControls.classList.remove('hidden');
-    headerTitle.textContent = '🎂 친구들과 다 같이 후~ 불어보세요';
-    headerSub.textContent = 'URL을 공유하고, 모두가 불면 촛불이 꺼져요';
-  } else {
-    roleBadge.className = 'badge guest';
-    roleBadge.textContent = '🎈 GUEST';
-    roomNameDisplay.textContent = '연결 중…';
-    shareRow.style.display = 'none';
-    hostControls.classList.add('hidden');
-    headerTitle.textContent = '🎂 친구들과 다 같이 후~ 불어보세요';
-    headerSub.textContent = '모두가 불어야 촛불이 꺼져요';
-  }
-}
-
-/* ============================================================
- * 룸 패널 렌더링
- * ============================================================ */
-function renderRoom() {
-  roomNameDisplay.textContent = app.roomName || '—';
-
-  membersList.innerHTML = '';
-  let blownCount = 0;
-  app.members.forEach(m => {
-    if (m.hasBlown) blownCount++;
-    const li = document.createElement('li');
-    li.className = 'member' + (m.hasBlown ? ' blown' : '') + (m.id === app.myPeerId ? ' me' : '');
-    li.innerHTML = `
-      <div class="member-icon">${m.isHost ? '👑' : (m.hasBlown ? '✓' : '🎤')}</div>
-      <div class="member-name"></div>
-      <div class="member-status">${m.hasBlown ? '불었어요!' : '준비 중…'}</div>
-    `;
-    li.querySelector('.member-name').textContent = m.nickname;
-    membersList.appendChild(li);
-  });
-
-  roomStats.innerHTML = `<span>접속 ${app.members.length}명</span><span>불었어요 ${blownCount}/${app.members.length}</span>`;
-}
-
-/* ============================================================
- * 공유 URL 복사
- * ============================================================ */
-copyBtn.addEventListener('click', async () => {
-  try {
-    await navigator.clipboard.writeText(location.href);
-    showToast('🔗 URL을 복사했어요!');
-  } catch (_) {
-    shareUrl.select();
-    document.execCommand('copy');
-    showToast('🔗 URL을 복사했어요!');
-  }
-});
-
-/* ============================================================
- * 호스트의 리셋 (촛불 다시 켜기)
- * ============================================================ */
-resetBtn.addEventListener('click', () => {
-  if (app.mode !== 'host') return;
-  Object.values(app.membersById).forEach(m => m.hasBlown = false);
-  app.myBlown = false;
-  broadcastState();
-  showToast('🔄 촛불을 다시 켰어요. 다시 불어보세요!');
-});
-
-/* ============================================================
- * 케이크 애니메이션
- * ============================================================ */
-function blowOutCandlesAnim() {
-  if (app.blownOut) return;
-  app.blownOut = true;
+  // 약간의 시간차를 두고 하나씩 꺼지면 더 자연스러움
   flames.forEach((f, i) => {
     setTimeout(() => {
       f.classList.add('out');
-      const sm = smokes[i];
-      sm.classList.remove('on');
-      void sm.offsetWidth;
-      sm.classList.add('on');
+      // 연기 피우기
+      const smoke = smokes[i];
+      smoke.classList.remove('on');
+      // 강제 reflow 후 다시 추가해서 애니메이션 재시작
+      void smoke.offsetWidth;
+      smoke.classList.add('on');
     }, i * 110);
   });
-  setTimeout(() => greeting.classList.add('show'), 500);
-  setMeterStatus('🎉 모두가 불어줬어요!');
+
+  // 메시지 표시
+  setTimeout(() => {
+    greeting.classList.add('show');
+  }, 500);
 }
 
-function relightCandlesAnim() {
-  app.blownOut = false;
+function relightCandles() {
+  blownOut = false;
   flames.forEach(f => f.classList.remove('out'));
   smokes.forEach(s => s.classList.remove('on'));
   greeting.classList.remove('show');
-  setMeterStatus('🎤 마이크에 "후~" 하고 불어주세요');
 }
 
-function setMeterStatus(text) { meterStatus.textContent = text; }
+replayBtn.addEventListener('click', () => {
+  relightCandles();
+});
 
-/* ============================================================
- * 마이크 / Web Audio API
- * ============================================================ */
+// ----- 마이크 / 오디오 분석 -----
+let audioCtx, analyser, micStream, dataArray, rafId;
+let aboveSince = 0;
+
 async function startMic() {
+  startBtn.disabled = true;
+  startBtn.textContent = '마이크 권한 요청 중…';
+
   try {
-    app.micStream = await navigator.mediaDevices.getUserMedia({
+    // 1) 사용자 마이크 권한 요청
+    micStream = await navigator.mediaDevices.getUserMedia({
       audio: {
         echoCancellation: false,
         noiseSuppression: false,
-        autoGainControl: false,
+        autoGainControl: false
       },
-      video: false,
+      video: false
     });
   } catch (err) {
+    // 권한 거부 / 미지원
     console.error(err);
-    let m = '마이크를 사용할 수 없어요.';
-    if (err.name === 'NotAllowedError') m = '🚫 마이크 권한이 거부되었어요. 브라우저 자물쇠 아이콘에서 권한을 허용한 뒤 새로고침해 주세요.';
-    else if (err.name === 'NotFoundError') m = '🎤 사용 가능한 마이크 장치가 없어요.';
-    alert(m);
-    setMeterStatus(m);
+    let msg = '마이크 사용을 거부했거나 사용할 수 없는 환경이에요.';
+    if (err && err.name === 'NotAllowedError') {
+      msg = '🚫 마이크 권한이 거부되었어요. 브라우저 주소창의 자물쇠 아이콘에서 권한을 허용해 주세요.';
+    } else if (err && err.name === 'NotFoundError') {
+      msg = '🎤 사용 가능한 마이크 장치가 없어요.';
+    }
+    alert(msg);
+    startBtn.disabled = false;
+    startBtn.textContent = '🎤 다시 시도하기';
     return;
   }
 
-  app.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  app.analyser = app.audioCtx.createAnalyser();
-  app.analyser.fftSize = 1024;
-  app.analyser.smoothingTimeConstant = 0.4;
+  // 2) Web Audio API 분석기 구성
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 1024;
+  analyser.smoothingTimeConstant = 0.4;
 
-  const src = app.audioCtx.createMediaStreamSource(app.micStream);
-  src.connect(app.analyser);
+  const src = audioCtx.createMediaStreamSource(micStream);
+  src.connect(analyser);
 
-  const dataArr = new Uint8Array(app.analyser.fftSize);
-  let peakRms = 0;          // 피크-홀드값. 즉시 올라가고 천천히 내려옴
-  let belowSince = 0;       // 임계값 아래로 내려간 순간 (grace period 측정용)
-  const GRACE_MS = 80;      // 임계값 아래로 내려가도 이 시간 안에 다시 올라오면 sustain 유지
+  dataArray = new Uint8Array(analyser.fftSize);
 
-  const loop = () => {
-    app.analyser.getByteTimeDomainData(dataArr);
-    let sum = 0;
-    for (let i = 0; i < dataArr.length; i++) {
-      const v = (dataArr[i] - 128) / 128;
-      sum += v * v;
-    }
-    const rms = Math.sqrt(sum / dataArr.length);
+  // 3) UI 전환
+  startBtn.style.display = 'none';
+  meterWrap.classList.remove('hidden');
+  showToast('🎤 마이크 ON — "후~" 하고 세게 불어보세요!', 3000);
 
-    // 피크 홀드: 올라갈 때는 즉시, 내려갈 때는 PEAK_DECAY 만큼만 감쇠.
-    // 이렇게 하면 "후~" 도중 RMS가 잠깐 dip 해도 표시값/트리거 모두 끊기지 않는다.
-    peakRms = Math.max(rms, peakRms * PEAK_DECAY);
-
-    const display = Math.min(1, peakRms / (BLOW_THRESHOLD * 2));
-    meterFill.style.width = (display * 100) + '%';
-
-    const windy = peakRms > BLOW_THRESHOLD * 0.5;
-    flames.forEach(f => f.classList.toggle('windy', windy && !app.blownOut));
-
-    const now = performance.now();
-    if (peakRms > BLOW_THRESHOLD) {
-      if (app.aboveSince === 0) app.aboveSince = now;
-      belowSince = 0;
-      if (!app.myBlown && now - app.aboveSince >= SUSTAIN_MS) {
-        myBlow();
-      }
-    } else {
-      // 곧바로 reset 하지 않고 GRACE_MS 만큼 유예 — 짧은 dip 은 무시
-      if (belowSince === 0) belowSince = now;
-      if (now - belowSince > GRACE_MS) app.aboveSince = 0;
-    }
-
-    app.rafId = requestAnimationFrame(loop);
-  };
+  // 4) 분석 루프
   loop();
 }
 
-function myBlow() {
-  if (app.myBlown) return;
-  app.myBlown = true;
+function loop() {
+  analyser.getByteTimeDomainData(dataArray);
 
-  if (app.mode === 'host') {
-    if (app.membersById[app.myPeerId]) {
-      app.membersById[app.myPeerId].hasBlown = true;
-      broadcastState();
+  // RMS(평균 진폭) 계산: 0 ~ 1 사이로 정규화
+  let sum = 0;
+  for (let i = 0; i < dataArray.length; i++) {
+    const v = (dataArray[i] - 128) / 128;
+    sum += v * v;
+  }
+  const rms = Math.sqrt(sum / dataArray.length);
+
+  // 미터 표시 (시각적으로 임계값 ×2 정도까지를 가득 차게)
+  const display = Math.min(1, rms / (BLOW_THRESHOLD * 2));
+  meterFill.style.width = (display * 100) + '%';
+
+  // 촛불 흔들림 강도 반영
+  const windy = rms > BLOW_THRESHOLD * 0.5;
+  flames.forEach(f => f.classList.toggle('windy', windy && !blownOut));
+
+  // 임계값 초과 + 일정 시간 유지 → 촛불 끄기
+  const now = performance.now();
+  if (rms > BLOW_THRESHOLD) {
+    if (aboveSince === 0) aboveSince = now;
+    if (!blownOut && now - aboveSince >= SUSTAIN_MS) {
+      blowOutCandles();
     }
   } else {
-    if (app.hostConn && app.hostConn.open) {
-      app.hostConn.send({ type: 'blow' });
-    }
+    aboveSince = 0;
   }
-  setMeterStatus('💨 잘 불었어요! 다른 사람을 기다리는 중…');
+
+  rafId = requestAnimationFrame(loop);
 }
 
-/* ============================================================
- * 정리
- * ============================================================ */
+// 시작 버튼
+startBtn.addEventListener('click', startMic);
+
+// 페이지 떠날 때 정리
 window.addEventListener('beforeunload', () => {
-  if (app.rafId) cancelAnimationFrame(app.rafId);
-  if (app.micStream) app.micStream.getTracks().forEach(t => t.stop());
-  if (app.audioCtx) app.audioCtx.close();
-  if (app.peer) app.peer.destroy();
+  if (rafId) cancelAnimationFrame(rafId);
+  if (micStream) micStream.getTracks().forEach(t => t.stop());
+  if (audioCtx) audioCtx.close();
 });
 
-/* 테스트용: 스페이스바 누르면 내 입김으로 처리 */
+// 키보드로 강제 끄기 (테스트용): 스페이스바
 window.addEventListener('keydown', (e) => {
-  if (e.code === 'Space' && !modal.classList.contains('hidden') === false) {
+  if (e.code === 'Space') {
     e.preventDefault();
-    if (!app.myBlown) myBlow();
+    if (blownOut) relightCandles();
+    else blowOutCandles();
   }
 });
-
-/* 시작 */
-initModal();
-nicknameInput.focus();
 </script>
 </body>
 </html>
