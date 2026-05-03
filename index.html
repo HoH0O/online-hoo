@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>생일 축하해 🎂 — 후~ 불어보세요</title>
+<style>
+  :root {
+    --bg-1: #2b1055;
+    --bg-2: #7597de;
+    --cake-bottom: #f4a8b8;
+    --cake-mid: #fff4f0;
+    --cake-top: #ffd1dc;
+    --cream: #fff8f3;
+    --candle: #f6e3c5;
+    --wick: #2b1810;
+    --flame-outer: #ffae00;
+    --flame-inner: #fff3a0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Apple SD Gothic Neo', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    user-select: none;
+  }
+
+  body {
+    background: linear-gradient(180deg, #1a0938 0%, #3d1f6e 40%, #6d4aa8 80%, #b07cc6 100%);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+
+  /* ===== 별 + 색종이 배경 ===== */
+  .stars, .confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0.85;
+    animation: twinkle 3s infinite ease-in-out;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.4); }
+  }
+  .confetti span {
+    position: absolute;
+    top: -10vh;
+    width: 10px;
+    height: 14px;
+    opacity: 0.85;
+    animation: fall linear infinite;
+    border-radius: 2px;
+  }
+  @keyframes fall {
+    0% { transform: translateY(-10vh) rotate(0deg); }
+    100% { transform: translateY(110vh) rotate(720deg); }
+  }
+
+  /* ===== 상단 안내 ===== */
+  .header {
+    position: absolute;
+    top: 30px;
+    z-index: 20;
+    text-align: center;
+    color: #fff;
+  }
+  .header h1 {
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  }
+  .header p {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #f5e4ff;
+    opacity: 0.9;
+  }
+
+  /* ===== 마이크 시작 버튼 ===== */
+  .start-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    padding: 16px 36px;
+    background: linear-gradient(135deg, #ff8a8a, #ffb38a);
+    color: #fff;
+    font-size: 17px;
+    font-weight: 600;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(255, 138, 138, 0.5), 0 0 0 0 rgba(255, 138, 138, 0.7);
+    transition: transform 0.2s, box-shadow 0.2s;
+    animation: btnPulse 2s infinite;
+  }
+  .start-btn:hover { transform: translate(-50%, -50%) scale(1.06); }
+  @keyframes btnPulse {
+    0%, 100% { box-shadow: 0 10px 30px rgba(255, 138, 138, 0.5), 0 0 0 0 rgba(255, 138, 138, 0.7); }
+    50%      { box-shadow: 0 10px 30px rgba(255, 138, 138, 0.5), 0 0 0 18px rgba(255, 138, 138, 0); }
+  }
+
+  /* ===== 케이크 무대 ===== */
+  .stage {
+    position: relative;
+    width: min(90vw, 480px);
+    height: min(70vh, 520px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .cake {
+    position: relative;
+    width: 320px;
+    height: 280px;
+    transform-origin: bottom center;
+    animation: cakeFloat 4s ease-in-out infinite;
+  }
+  @keyframes cakeFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  /* 접시 */
+  .plate {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 360px;
+    height: 28px;
+    background: radial-gradient(ellipse at center, #f0f0f0 0%, #b8b8b8 100%);
+    border-radius: 50%;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  }
+
+  /* 케이크 단(레이어) */
+  .layer {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 12px;
+    box-shadow: inset 0 -8px 0 rgba(0,0,0,0.06), 0 4px 14px rgba(0,0,0,0.25);
+  }
+  .layer-bottom {
+    bottom: 22px;
+    width: 280px;
+    height: 90px;
+    background: linear-gradient(180deg, #ffb6c8 0%, #ff89a8 100%);
+  }
+  .layer-mid {
+    bottom: 110px;
+    width: 220px;
+    height: 75px;
+    background: linear-gradient(180deg, #fff4f0 0%, #ffd9c4 100%);
+  }
+  .layer-top {
+    bottom: 183px;
+    width: 160px;
+    height: 60px;
+    background: linear-gradient(180deg, #ffe1ec 0%, #ffb3cd 100%);
+  }
+
+  /* 크림 흘러내림 */
+  .drip {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 14px;
+    background: var(--cream);
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.04);
+  }
+  .drip-bottom { bottom: 100px; width: 280px; height: 22px; }
+  .drip-mid    { bottom: 178px; width: 220px; height: 18px; }
+  .drip-top    { bottom: 238px; width: 160px; height: 14px; }
+
+  /* 데코: 체리 */
+  .cherry {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: radial-gradient(circle at 30% 30%, #ff6f7a, #b30021);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .cherry::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 6px;
+    width: 2px;
+    height: 8px;
+    background: #4a3019;
+    transform: rotate(15deg);
+  }
+  .c1 { bottom: 109px; left: 30px; }
+  .c2 { bottom: 109px; right: 30px; }
+  .c3 { bottom: 109px; left: 50%; transform: translateX(-50%); }
+  .c4 { bottom: 184px; left: 60px; }
+  .c5 { bottom: 184px; right: 60px; }
+
+  /* 양초 (긴 한 개 + 짧은 두 개) */
+  .candle {
+    position: absolute;
+    bottom: 240px;
+    width: 18px;
+    background: repeating-linear-gradient(
+      180deg,
+      #fff8e0 0px,
+      #fff8e0 6px,
+      #fbe1a3 6px,
+      #fbe1a3 12px
+    );
+    border-radius: 4px 4px 2px 2px;
+    box-shadow: inset -4px 0 0 rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.2);
+    z-index: 5;
+  }
+  .candle.center { left: 50%; transform: translateX(-50%); height: 70px; bottom: 240px; }
+  .candle.left   { left: calc(50% - 50px); height: 50px; bottom: 240px; }
+  .candle.right  { left: calc(50% + 32px); height: 50px; bottom: 240px; }
+
+  /* 심지 */
+  .wick {
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 6px;
+    background: var(--wick);
+    border-radius: 1px;
+  }
+
+  /* 불꽃 */
+  .flame {
+    position: absolute;
+    top: -34px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 32px;
+    background: radial-gradient(ellipse at center bottom,
+      #fff3a0 0%,
+      #ffd24a 25%,
+      #ff8a00 60%,
+      #ff4400 90%,
+      transparent 100%);
+    border-radius: 50% 50% 35% 35% / 70% 70% 30% 30%;
+    transform-origin: bottom center;
+    animation: flicker 0.18s infinite alternate;
+    box-shadow:
+      0 0 22px 6px rgba(255, 170, 60, 0.55),
+      0 0 50px 12px rgba(255, 130, 0, 0.35);
+    filter: drop-shadow(0 0 6px #ffae33);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .flame::before {
+    /* 안쪽 푸른 코어 */
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 8px;
+    background: radial-gradient(ellipse, #88c5ff 0%, transparent 80%);
+    border-radius: 50%;
+    opacity: 0.85;
+  }
+
+  @keyframes flicker {
+    0%   { transform: translateX(-50%) rotate(-2deg) scale(1, 1); }
+    25%  { transform: translateX(-50%) rotate(2deg)  scale(1.05, 0.95); }
+    50%  { transform: translateX(-50%) rotate(-1deg) scale(0.95, 1.08); }
+    75%  { transform: translateX(-50%) rotate(3deg)  scale(1.04, 0.98); }
+    100% { transform: translateX(-50%) rotate(-3deg) scale(0.98, 1.05); }
+  }
+
+  /* 바람 강도에 따라 흔들림 강해지도록 */
+  .flame.windy {
+    animation: flicker 0.08s infinite alternate;
+    transform-origin: bottom center;
+  }
+
+  /* 꺼진 상태 */
+  .flame.out {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.2);
+    box-shadow: none;
+    filter: none;
+  }
+
+  /* 연기 */
+  .smoke {
+    position: absolute;
+    top: -36px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, rgba(220,220,220,0.7), transparent 70%);
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .smoke.on {
+    animation: smokeRise 1.6s ease-out forwards;
+  }
+  @keyframes smokeRise {
+    0%   { opacity: 0.9; transform: translateX(-50%) translateY(0) scale(0.8); }
+    100% { opacity: 0;   transform: translateX(-50%) translateY(-80px) scale(2.4); }
+  }
+
+  /* ===== 볼륨 미터 ===== */
+  .meter-wrap {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(80vw, 360px);
+    z-index: 30;
+    color: #fff;
+    text-align: center;
+    font-size: 13px;
+    opacity: 0.95;
+  }
+  .meter-wrap.hidden { display: none; }
+  .meter-bar {
+    margin-top: 8px;
+    height: 10px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+  .meter-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 0%;
+    background: linear-gradient(90deg, #7afcff, #fee75c, #ff8a8a);
+    transition: width 0.06s linear;
+  }
+  .meter-threshold {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    background: #fff;
+    box-shadow: 0 0 6px #fff;
+  }
+
+  /* ===== 축하 메시지 ===== */
+  .greeting {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    z-index: 50;
+    text-align: center;
+    color: #fff;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .greeting.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .greeting h2 {
+    font-size: clamp(48px, 10vw, 96px);
+    font-weight: 800;
+    letter-spacing: 4px;
+    background: linear-gradient(90deg, #ffe27a, #ff8aae, #ffd6f1, #ffe27a);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 30px rgba(255, 200, 220, 0.45);
+    animation: shimmer 3s linear infinite;
+  }
+  @keyframes shimmer {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+  }
+  .greeting p {
+    margin-top: 18px;
+    font-size: clamp(15px, 2vw, 18px);
+    color: #ffe7f3;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+  .replay {
+    margin-top: 24px;
+    padding: 10px 22px;
+    border: 1px solid rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 14px;
+    backdrop-filter: blur(6px);
+    transition: background 0.2s;
+    pointer-events: auto;
+  }
+  .replay:hover { background: rgba(255,255,255,0.18); }
+
+  /* 토스트 */
+  .toast {
+    position: absolute;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 13px;
+    z-index: 60;
+    opacity: 0;
+    transition: opacity 0.3s;
+    backdrop-filter: blur(8px);
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+  <!-- 배경: 별 + 색종이 -->
+  <div class="stars" id="stars"></div>
+  <div class="confetti" id="confetti"></div>
+
+  <!-- 상단 안내 -->
+  <div class="header">
+    <h1>🎂 마이크에 "후~" 하고 불어보세요</h1>
+    <p>촛불이 꺼지면 깜짝 메시지가 나타나요</p>
+  </div>
+
+  <!-- 시작 버튼 (마이크 권한용 사용자 제스처 필요) -->
+  <button class="start-btn" id="startBtn">🎤 시작하기 (마이크 켜기)</button>
+
+  <!-- 케이크 -->
+  <div class="stage">
+    <div class="cake">
+      <!-- 양초 3개 -->
+      <div class="candle left">
+        <div class="wick"></div>
+        <div class="flame" data-flame></div>
+        <div class="smoke" data-smoke></div>
+      </div>
+      <div class="candle center">
+        <div class="wick"></div>
+        <div class="flame" data-flame></div>
+        <div class="smoke" data-smoke></div>
+      </div>
+      <div class="candle right">
+        <div class="wick"></div>
+        <div class="flame" data-flame></div>
+        <div class="smoke" data-smoke></div>
+      </div>
+
+      <!-- 케이크 본체 -->
+      <div class="layer layer-top"></div>
+      <div class="drip drip-top"></div>
+      <div class="cherry c4"></div>
+      <div class="cherry c5"></div>
+
+      <div class="layer layer-mid"></div>
+      <div class="drip drip-mid"></div>
+
+      <div class="layer layer-bottom"></div>
+      <div class="drip drip-bottom"></div>
+      <div class="cherry c1"></div>
+      <div class="cherry c2"></div>
+      <div class="cherry c3"></div>
+
+      <div class="plate"></div>
+    </div>
+  </div>
+
+  <!-- 볼륨 미터 -->
+  <div class="meter-wrap hidden" id="meterWrap">
+    <div>입김 감지 중… (흰색 선이 임계값)</div>
+    <div class="meter-bar">
+      <div class="meter-fill" id="meterFill"></div>
+      <div class="meter-threshold" id="meterThreshold"></div>
+    </div>
+  </div>
+
+  <!-- 축하 메시지 -->
+  <div class="greeting" id="greeting">
+    <h2>생일축하해</h2>
+    <p>🎉 당신의 하루가 가장 빛나는 순간으로 가득하기를 🎉</p>
+    <button class="replay" id="replayBtn">다시 불어보기</button>
+  </div>
+
+  <!-- 토스트 -->
+  <div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+ * 🎚️ 마이크 볼륨 임계값 (THRESHOLD)
+ * 이 값을 조정하면 "얼마나 세게 불어야 촛불이 꺼지는지" 결정됩니다.
+ * - 값이 작으면 작은 소리에도 반응 (민감)
+ * - 값이 크면 정말 세게 불어야 반응 (둔감)
+ * 권장 범위: 0.10 ~ 0.30
+ * ============================================================ */
+const BLOW_THRESHOLD = 0.18;
+
+/* ============================================================
+ * 🎚️ 임계값을 넘긴 상태가 유지되어야 하는 시간(ms)
+ * 너무 짧은 잡음(박수, 말소리 등)을 걸러내기 위해 사용합니다.
+ * ============================================================ */
+const SUSTAIN_MS = 120;
+
+// ----- DOM 참조 -----
+const startBtn = document.getElementById('startBtn');
+const replayBtn = document.getElementById('replayBtn');
+const greeting = document.getElementById('greeting');
+const flames = document.querySelectorAll('[data-flame]');
+const smokes = document.querySelectorAll('[data-smoke]');
+const meterWrap = document.getElementById('meterWrap');
+const meterFill = document.getElementById('meterFill');
+const meterThreshold = document.getElementById('meterThreshold');
+const toast = document.getElementById('toast');
+
+// ----- 배경 별 생성 -----
+(function makeStars() {
+  const wrap = document.getElementById('stars');
+  const count = 80;
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.animationDelay = (Math.random() * 3) + 's';
+    s.style.opacity = (0.3 + Math.random() * 0.7).toFixed(2);
+    const size = (1 + Math.random() * 2).toFixed(1);
+    s.style.width = size + 'px';
+    s.style.height = size + 'px';
+    wrap.appendChild(s);
+  }
+})();
+
+// ----- 색종이 생성 -----
+(function makeConfetti() {
+  const wrap = document.getElementById('confetti');
+  const colors = ['#ff8aae', '#ffd24a', '#7afcff', '#a18bff', '#ffaee0', '#90ee90'];
+  for (let i = 0; i < 40; i++) {
+    const c = document.createElement('span');
+    c.style.left = Math.random() * 100 + '%';
+    c.style.background = colors[i % colors.length];
+    c.style.animationDuration = (5 + Math.random() * 6) + 's';
+    c.style.animationDelay = (Math.random() * 6) + 's';
+    c.style.transform = `rotate(${Math.random() * 360}deg)`;
+    wrap.appendChild(c);
+  }
+})();
+
+// ----- 임계값 마커 위치 표시 -----
+meterThreshold.style.left = (BLOW_THRESHOLD * 100) + '%';
+
+// ----- 토스트 -----
+function showToast(msg, ms = 2400) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => toast.classList.remove('show'), ms);
+}
+
+// ----- 촛불 끄기 / 다시 켜기 -----
+let blownOut = false;
+
+function blowOutCandles() {
+  if (blownOut) return;
+  blownOut = true;
+
+  // 약간의 시간차를 두고 하나씩 꺼지면 더 자연스러움
+  flames.forEach((f, i) => {
+    setTimeout(() => {
+      f.classList.add('out');
+      // 연기 피우기
+      const smoke = smokes[i];
+      smoke.classList.remove('on');
+      // 강제 reflow 후 다시 추가해서 애니메이션 재시작
+      void smoke.offsetWidth;
+      smoke.classList.add('on');
+    }, i * 110);
+  });
+
+  // 메시지 표시
+  setTimeout(() => {
+    greeting.classList.add('show');
+  }, 500);
+}
+
+function relightCandles() {
+  blownOut = false;
+  flames.forEach(f => f.classList.remove('out'));
+  smokes.forEach(s => s.classList.remove('on'));
+  greeting.classList.remove('show');
+}
+
+replayBtn.addEventListener('click', () => {
+  relightCandles();
+});
+
+// ----- 마이크 / 오디오 분석 -----
+let audioCtx, analyser, micStream, dataArray, rafId;
+let aboveSince = 0;
+
+async function startMic() {
+  startBtn.disabled = true;
+  startBtn.textContent = '마이크 권한 요청 중…';
+
+  try {
+    // 1) 사용자 마이크 권한 요청
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false
+      },
+      video: false
+    });
+  } catch (err) {
+    // 권한 거부 / 미지원
+    console.error(err);
+    let msg = '마이크 사용을 거부했거나 사용할 수 없는 환경이에요.';
+    if (err && err.name === 'NotAllowedError') {
+      msg = '🚫 마이크 권한이 거부되었어요. 브라우저 주소창의 자물쇠 아이콘에서 권한을 허용해 주세요.';
+    } else if (err && err.name === 'NotFoundError') {
+      msg = '🎤 사용 가능한 마이크 장치가 없어요.';
+    }
+    alert(msg);
+    startBtn.disabled = false;
+    startBtn.textContent = '🎤 다시 시도하기';
+    return;
+  }
+
+  // 2) Web Audio API 분석기 구성
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 1024;
+  analyser.smoothingTimeConstant = 0.4;
+
+  const src = audioCtx.createMediaStreamSource(micStream);
+  src.connect(analyser);
+
+  dataArray = new Uint8Array(analyser.fftSize);
+
+  // 3) UI 전환
+  startBtn.style.display = 'none';
+  meterWrap.classList.remove('hidden');
+  showToast('🎤 마이크 ON — "후~" 하고 세게 불어보세요!', 3000);
+
+  // 4) 분석 루프
+  loop();
+}
+
+function loop() {
+  analyser.getByteTimeDomainData(dataArray);
+
+  // RMS(평균 진폭) 계산: 0 ~ 1 사이로 정규화
+  let sum = 0;
+  for (let i = 0; i < dataArray.length; i++) {
+    const v = (dataArray[i] - 128) / 128;
+    sum += v * v;
+  }
+  const rms = Math.sqrt(sum / dataArray.length);
+
+  // 미터 표시 (시각적으로 임계값 ×2 정도까지를 가득 차게)
+  const display = Math.min(1, rms / (BLOW_THRESHOLD * 2));
+  meterFill.style.width = (display * 100) + '%';
+
+  // 촛불 흔들림 강도 반영
+  const windy = rms > BLOW_THRESHOLD * 0.5;
+  flames.forEach(f => f.classList.toggle('windy', windy && !blownOut));
+
+  // 임계값 초과 + 일정 시간 유지 → 촛불 끄기
+  const now = performance.now();
+  if (rms > BLOW_THRESHOLD) {
+    if (aboveSince === 0) aboveSince = now;
+    if (!blownOut && now - aboveSince >= SUSTAIN_MS) {
+      blowOutCandles();
+    }
+  } else {
+    aboveSince = 0;
+  }
+
+  rafId = requestAnimationFrame(loop);
+}
+
+// 시작 버튼
+startBtn.addEventListener('click', startMic);
+
+// 페이지 떠날 때 정리
+window.addEventListener('beforeunload', () => {
+  if (rafId) cancelAnimationFrame(rafId);
+  if (micStream) micStream.getTracks().forEach(t => t.stop());
+  if (audioCtx) audioCtx.close();
+});
+
+// 키보드로 강제 끄기 (테스트용): 스페이스바
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    if (blownOut) relightCandles();
+    else blowOutCandles();
+  }
+});
+</script>
+</body>
+</html>
